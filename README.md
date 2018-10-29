@@ -1,4 +1,4 @@
-# Data-Engineer-Challenge
+# Insight Data Science Coding Challenge
 
 # Table of Contents
 1. [Problem](README.md#Problem)
