@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# h1b_statistics.py
+# h1b_counting.py
 # -*- coding: utf-8 -*-
 # Author: Prudhvi
 
 """
-h1b_statistics.py outputs two files containing top ten occupations and states
+h1b_counting.py outputs two files containing top ten occupations and states
 based on number of certified applications of h1b. Given input file separated
 by ';', it counts the number of certified applications and stores the
 information in a dictionary which is sorted to provide the top results.
@@ -125,9 +125,13 @@ def clean_occupation_name(columns):
     Software developer, Applications R&D which is more intuitive
     and provides more accurate counting.
     """
-    if ('&AMP;' in columns[occupation_name_index].upper()):
-        columns[occupation_name_index] = columns[occupation_name_index].replace('AMP;',
-                                                                                '')
+    try:
+        if ('&AMP;' in columns[occupation_name_index].upper()):
+            columns[occupation_name_index] = columns[occupation_name_index].replace('AMP;',
+                                                                                    '')
+    except IndexError:
+        print('Exception in clean_occupation_name: Length of row not as expected.\n', columns)
+
     return columns
 
 
@@ -151,27 +155,31 @@ def clean_occupation_code(columns):
 
     Returns a list of columns.
     """
-    if (len(columns[occupation_code_index]) > 7):
-        # Trim any white space between the characters of the soc code.
-        columns[occupation_code_index] = columns[occupation_code_index].replace(' ',
-                                                                                '')
-        columns[occupation_code_index] = columns[occupation_code_index][0:7]
-        if ('-' not in columns[occupation_code_index]):
-            # Case1: replace character at index 2 with hyphen(-)
-            columns[occupation_code_index] = columns[occupation_code_index].replace(columns[occupation_code_index][2],
-                                                                                    '-')
-    elif(len(columns[occupation_code_index]) == 7):
-        if ('-' not in columns[occupation_code_index]):
-            # Case1: replace character at index 2 with hyphen(-)
-            columns[occupation_code_index] = columns[occupation_code_index].replace(columns[occupation_code_index][2],
-                                                                                    '-')
-    else:
-        if (len(columns[occupation_code_index]) == 6
-                and (columns[occupation_code_index].isdigit())):
-            # Case2: insert hyphen(-) at index 2
-            columns[occupation_code_index] = (columns[occupation_code_index][:2]
-                                              + '-'
-                                              + columns[occupation_code_index][2:])
+    try:
+        if (len(columns[occupation_code_index]) > 7):
+            # Trim any white space between the characters of the soc code.
+            columns[occupation_code_index] = columns[occupation_code_index].replace(' ',
+                                                                                    '')
+            columns[occupation_code_index] = columns[occupation_code_index][0:7]
+            if ('-' not in columns[occupation_code_index]):
+                # Case1: replace character at index 2 with hyphen(-)
+                columns[occupation_code_index] = columns[occupation_code_index].replace(columns[occupation_code_index][2],
+                                                                                        '-')
+        elif(len(columns[occupation_code_index]) == 7):
+            if ('-' not in columns[occupation_code_index]):
+                # Case1: replace character at index 2 with hyphen(-)
+                columns[occupation_code_index] = columns[occupation_code_index].replace(columns[occupation_code_index][2],
+                                                                                        '-')
+        else:
+            if (len(columns[occupation_code_index]) == 6
+                    and (columns[occupation_code_index].isdigit())):
+                # Case2: insert hyphen(-) at index 2
+                columns[occupation_code_index] = (columns[occupation_code_index][:2]
+                                                  + '-'
+                                                  + columns[occupation_code_index][2:])
+    except IndexError:
+        print('Exception in clean_occupation_code: Length of row not as expected.\n', columns)
+
     return columns
 
 
@@ -245,21 +253,24 @@ def clean_and_insert_columns(columns, is_clean_line):
     This method applies appropriate data cleaning
     and then inserts the data into dictionary.
     """
-    if (not is_clean_line):
-        # unclean data row, clean the occupation column.
-        columns = clean_occupation_name(columns)
+    try:
+        if (not is_clean_line):
+            # unclean data row, clean the occupation column.
+            columns = clean_occupation_name(columns)
 
-    if (columns[occupation_code_index] != ''):
-        # clean and insert only rows that have value.
-        columns = clean_occupation_code(columns)
-        insert_into_occupation_dictionary(occupations_dictionary,
-                                          columns[occupation_code_index],
-                                          columns[occupation_name_index])
+        if (columns[occupation_code_index] != ''):
+            # clean and insert only rows that have value.
+            columns = clean_occupation_code(columns)
+            insert_into_occupation_dictionary(occupations_dictionary,
+                                              columns[occupation_code_index],
+                                              columns[occupation_name_index])
 
-    if (columns[state_column_index] != ''):
-        # clean and insert only rows that have value.
-        insert_into_states_dictionary(states_dictionary,
-                                      columns[state_column_index])
+        if (columns[state_column_index] != ''):
+            # clean and insert only rows that have value.
+            insert_into_states_dictionary(states_dictionary,
+                                          columns[state_column_index])
+    except IndexError:
+        print('Exception in clean_and_insert_columns: Length of row not as expected.\n', columns)
 
 
 def sort_occupations_dictionary():
