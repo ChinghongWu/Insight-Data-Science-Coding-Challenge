@@ -89,13 +89,13 @@ def custom_split(row, separator):
 
     for character in row:
         if (character != separator):
-            if (character == '"' and not dont_split):
-                # reached opening double quotation mark.
-                dont_split = True
-                continue            # to skip the quotation mark in the result.
-            else:
-                # reached closing double quotation mark.
-                dont_split = False
+            if (character == '"'):
+                if (not dont_split):
+                    # reached opening double quotation mark.
+                    dont_split = True
+                else:
+                    # reached closing double quotation mark.
+                    dont_split = False
                 continue            # to skip the quotation mark in the result.
             column = column + character
 
